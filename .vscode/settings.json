@@ -1,0 +1,14 @@
+{
+    "cSpell.words": [
+        "asgi",
+        "contenttypes",
+        "makemigrations",
+        "pycache",
+        "startapp",
+        "startproject",
+        "staticfiles",
+        "urlpatterns",
+        "venv",
+        "wsgi"
+    ]
+}
