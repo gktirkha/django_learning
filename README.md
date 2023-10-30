@@ -96,12 +96,12 @@ python manage.py migrate
 1. inside your project folder (django_learning) in my case, create views.py
 
 1. inside views .py add following 
-```
-from django.http import HttpResponse
-def home_view(request):
-    return HttpResponse("<h1>Hello World</h1>")
-```
-3. inside django_learning/urls.py
+    ```
+    from django.http import HttpResponse
+    def home_view(request):
+        return HttpResponse("<h1>Hello World</h1>")
+    ```
+1. inside django_learning/urls.py
     - import home_view by ```from .views import home_view```
     - in urlpatterns list add ```path('',view=home_view)```
     - it would look like
@@ -161,7 +161,7 @@ def home_view(request):
     ```
     in the end program will return object id (usually it will be 1)
 
-2. in feature we will do it programmatically, this is up until then
+1. in feature we will do it programmatically, this is up until then
 
 # Creating web template
 1. create a folder called template in root of your project
@@ -254,8 +254,8 @@ home_view.html will look like
     <h1>article title = {{title}}<br />article content = {{content}}<br />id = {{id}}</h1>
     {% endblock heading %}
     ```
-> in templates/base.html
-1. add following code to the place where you want to display content of heading block
+
+1. **in templates/base.html** add following code to the place where you want to display content of heading block
     ```
     {% block heading %}
     <p>any thing here will we replaced</p>
@@ -286,27 +286,27 @@ home_view.html will look like
 
 # Passing List to html
 1. pass the list to html page using context
-```
-from django.template.loader import render_to_string
-from articles.models import Article
-from django.http import HttpResponse
+    ```
+    from django.template.loader import render_to_string
+    from articles.models import Article
+    from django.http import HttpResponse
 
 
-def home_view(request):
-    article = Article.objects.get(id=2)
-    my_list = [1, 2, 3, 4, 5, 6]
-    query_set = Article.objects.all()
-    print(query_set)
-    context = {"title": article.title,
-               "content": article.content,
-               "id": article.id,
-               "my_list": my_list,
-               'qs': query_set
-               }
-    HTML_STRING = render_to_string("home_view.html", context=context)
-    return HttpResponse(HTML_STRING)
+    def home_view(request):
+        article = Article.objects.get(id=2)
+        my_list = [1, 2, 3, 4, 5, 6]
+        query_set = Article.objects.all()
+        print(query_set)
+        context = {"title": article.title,
+                "content": article.content,
+                "id": article.id,
+                "my_list": my_list,
+                'qs': query_set
+                }
+        HTML_STRING = render_to_string("home_view.html", context=context)
+        return HttpResponse(HTML_STRING)
 
-```
+    ```
 
 1. in html page we can use for loops
     - start for loop as:
@@ -347,7 +347,7 @@ def home_view(request):
     path('articles/<int:id>', article_detail_view),
     ```
 
-2. in ```articles/views.py``` add your logic
+1. in ```articles/views.py``` add your logic
     ```
     from django.shortcuts import render
     from .models import Article
@@ -365,7 +365,7 @@ def home_view(request):
 
     ```
 
-3. refresh the page and hit the url
+1. refresh the page and hit the url
 
 # Creating an admin 
 run 
@@ -397,4 +397,80 @@ enter id and password to login
     |2|title 2|
 
     > search_fields will add a search bar, and we will be able to search object by the attributes we passed in list
-   
+
+# Basic Get request
+1. create ```templates/articles/search.html```
+    ```
+    {% extends "base.html" %}
+    {% block base %}
+
+    {% if article_obj != None %}
+    Passed Object Id = {{article_obj.id}} <br />
+    Passed Object Title = {{article_obj.title}} <br />
+    Passed Object Content = {{article_obj.content}} <br />
+    {% endif %}
+    {% endblock base %}
+    ```
+1. add search box in ```templates/base.html```
+    ```
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home View</title>
+    </head>
+
+    <body>
+        <h1>Search Box</h1>
+        <form action="/articles/">
+            <input type="text" name="q">
+            <input type="submit">
+        </form>
+        <br/>
+        {% block base %}
+        <p>any thing here will we replaced</p>
+        {% endblock base %}
+
+    </body>
+
+    </html>
+    ```
+
+1. create ```article_search_view``` in ```django_learning/views.py```
+    ```
+    def article_search_view(request):
+        query = request.GET['q']
+        try:
+            query = int(query)
+        except:
+            query = None
+
+        article_obj = None
+        try:
+            article_obj = Article.objects.get(id=query)
+        except:
+            article_obj = None
+
+        context = {
+            'article_obj': article_obj
+        }
+        return render(request=request, context=context, template_name='articles/search.html')
+    ```
+    > we can get request parameters by ```query = request.GET['<Parameter Name>']```
+
+1. add path in ```django_learning/urls.py```
+    ```
+    from django.contrib import admin
+    from django.urls import path
+    from .views import home_view,article_search_view
+    from articles.views import article_detail_view
+
+    urlpatterns = [
+        path('', home_view),
+        path('admin/', admin.site.urls),
+        path('articles/', article_search_view),
+        path('articles/<int:id>', article_detail_view),
+    ]
+    ```

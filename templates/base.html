@@ -1,14 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home View</title>
 </head>
+
 <body>
+    <h1>Search Box</h1>
+    <form action="/articles/">
+        <input type="text" name="q">
+        <input type="submit">
+    </form>
+    <br/>
     {% block base %}
     <p>any thing here will we replaced</p>
     {% endblock base %}
-    
+
 </body>
+
 </html>
