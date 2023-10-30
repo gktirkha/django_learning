@@ -2,5 +2,19 @@
 {% extends "base.html" %}
 {% block heading %}
 <!-- values to be substituted must be enclosed in double curly brackets ("{{variable}}")  -->
-<h1>article title = {{title}}<br />article content = {{content}}<br />id = {{id}}</h1>
+<h1>article title = {{title}}<br />article content = {{content}}<br />id = {{id}} <br /> My List </h1>
+<ul>
+    {% for x in my_list %}
+    <li>{{x}}</li>
+    {% endfor %}
+</ul>
+
+<h1>Query Set</h1>
+<ul>
+    {% for x in qs %}
+    {% if x.title %}
+    <li> <a href="/articles/{{x.id}}">{{x.title}}</a> </li>
+    {% endif %}
+    {%endfor%}
+</ul>
 {% endblock heading %}

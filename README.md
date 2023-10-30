@@ -281,3 +281,60 @@ home_view.html will look like
     ```
 
 1. refresh the web page and see the changes
+
+# Passing List to html
+1. pass the list to html page using context
+```
+from django.template.loader import render_to_string
+from articles.models import Article
+from django.http import HttpResponse
+
+
+def home_view(request):
+    article = Article.objects.get(id=2)
+    my_list = [1, 2, 3, 4, 5, 6]
+    query_set = Article.objects.all()
+    print(query_set)
+    context = {"title": article.title,
+               "content": article.content,
+               "id": article.id,
+               "my_list": my_list,
+               'qs': query_set
+               }
+    HTML_STRING = render_to_string("home_view.html", context=context)
+    return HttpResponse(HTML_STRING)
+
+```
+
+1. in html page we can use for loops
+    - start for loop as:
+    ```
+    
+    {% for x in my_list %}
+     
+    ```
+    - access variable using the name you do in python like ```{{x}}```
+    complete code
+    ```
+    <ul>
+    {% for x in my_list %}
+    <li>{{x}}</li>
+    {% endfor %}
+    </ul>
+
+    <h1>Query Set</h1>
+    <ul>
+    {% for x in qs %}
+    {% if x.title %}
+    <li> <a href="/articles/{{x.id}}">{{x.title}}</a> </li>
+    {% endif %}
+    {%endfor%}
+    </ul>
+    ```
+
+> if you want to use any control flow statement, make sure to close it like 
+
+```
+{% for x in my_list %} # Beginning
+{% endfor %} # end
+```
