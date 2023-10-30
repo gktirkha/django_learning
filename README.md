@@ -338,3 +338,28 @@ def home_view(request):
 {% for x in my_list %} # Beginning
 {% endfor %} # end
 ```
+
+# Dynamic Routing
+1. in ```django_learning/urls.py``` add dynamic route as
+    ```
+    path('articles/<int:id>', article_detail_view),
+    ```
+
+2. in ```articles/views.py``` add your logic
+    ```
+    from django.shortcuts import render
+    from .models import Article
+
+
+    def article_detail_view(request, id):
+        article_obj = None
+        if id == None:
+            article_obj = Article.objects.get(id=1)
+        else:
+            article_obj = Article.objects.get(id=id)
+
+        context = {'article_obj': article_obj}
+        return render(request=request, template_name='articles/details.html', context=context)
+
+    ```
+ 3. refresh the page and hit the url

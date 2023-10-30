@@ -1,6 +1,6 @@
 <!-- Content here will be replaced in view  -->
 {% extends "base.html" %}
-{% block heading %}
+{% block base %}
 <!-- values to be substituted must be enclosed in double curly brackets ("{{variable}}")  -->
 <h1>article title = {{title}}<br />article content = {{content}}<br />id = {{id}} <br /> My List </h1>
 <ul>
@@ -17,4 +17,4 @@
     {% endif %}
     {%endfor%}
 </ul>
-{% endblock heading %}
+{% endblock base %}
