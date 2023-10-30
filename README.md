@@ -39,7 +39,9 @@ django-admin startproject <your project name> .
 > . at the end of the command indicates current directory, you may replace it the directory where you want to create django project
 
 if done correctly following will be the directory structure
-```           
+> for future reference name of my project is ```django_learning```
+
+```
 .
 ├── manage.py
 ├── .venv
@@ -362,4 +364,37 @@ def home_view(request):
         return render(request=request, template_name='articles/details.html', context=context)
 
     ```
- 3. refresh the page and hit the url
+
+3. refresh the page and hit the url
+
+# Creating an admin 
+run 
+```
+python manage.py createsuperuser
+```
+
+enter id and password
+hit 
+```
+http://127.0.0.1:8000/admin
+```
+enter id and password to login
+
+# Adding models to admin panel
+
+1. open ```articles/admin.py```
+1. import your model
+1. make a class that extends ```admin.ModelAdmin```
+1. in class set following properties
+    1. ```list_display = ['id', 'title']```
+    1. ```search_fields = ['title']```
+    > these two lines will do following
+
+    list_display will add fields in table in admin panel
+    |id|title|
+    |:--|:--|
+    |1|title 1|
+    |2|title 2|
+
+    > search_fields will add a search bar, and we will be able to search object by the attributes we passed in list
+   
