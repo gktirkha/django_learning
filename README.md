@@ -438,21 +438,20 @@ enter id and password to login
     </html>
     ```
 
-1. create ```article_search_view``` in ```django_learning/views.py```
+1. create ```article_search_view``` in ```articles/views.py```
     ```
-    def article_search_view(request):
-        query = request.GET['q']
-        try:
-            query = int(query)
-        except:
-            query = None
-
+    def article_search_view(request: HttpRequest):
+        query = None
         article_obj = None
+
         try:
+            query = request.GET['q']
+            query = int(query)
             article_obj = Article.objects.get(id=query)
         except:
+            query = None
             article_obj = None
-
+            
         context = {
             'article_obj': article_obj
         }
@@ -464,13 +463,75 @@ enter id and password to login
     ```
     from django.contrib import admin
     from django.urls import path
-    from .views import home_view,article_search_view
-    from articles.views import article_detail_view
+    from .views import *
+    from articles import views
 
     urlpatterns = [
         path('', home_view),
         path('admin/', admin.site.urls),
-        path('articles/', article_search_view),
-        path('articles/<int:id>', article_detail_view),
+        path('articles/', views.article_search_view),
+        path('articles/create', views.article_create_view),
+        path('articles/<int:id>', views.article_detail_view),
+
     ]
+    ```
+
+# Simple Post Request
+1. in ```articles/views.py``` add create_view
+    ```
+    def article_create_view(request: HttpRequest):
+        context = {}
+
+        if (request.method == 'POST'):
+            title = request.POST.get('title')
+            content = request.POST.get('content')
+            article_obj = Article.objects.create(title=title, content=content)
+            context['article_obj'], context['created'] = article_obj,  True
+
+        return render(request=request, context=context, template_name='articles/create.html')
+    ```
+
+    > ```if (request.method == 'POST'):``` to perform actions only on post request
+
+1. register url in ```django_learning/urls.py```
+    ```
+    urlpatterns = [
+        path('', home_view),
+        path('admin/', admin.site.urls),
+        path('articles/', views.article_search_view),
+        path('articles/create/', views.article_create_view),
+        path('articles/<int:id>', views.article_detail_view),
+
+    ]
+    ```
+    > always remember just like express in java-script, order of url does effect the program
+
+1. create ```templates/articles/create.html``` 
+    ```
+    {% extends "base.html" %}
+    {% block base %}
+    <h1>Create.html</h1>
+
+    {% if not created %}
+
+    <div style="margin-top: 30px;">
+        <form action="." method="post">
+            {% csrf_token %}
+            <div style="margin-top: 30px;">
+                <input type="text" name="title" placeholder="Title" required />
+            </div>
+            <div style="margin-top: 10px;">
+                <textarea name="content" placeholder="Content" required></textarea>
+            </div>
+            <button type="submit">Create Article</button>
+        </form>
+    </div>
+
+    {% else %}
+    Passed Object Id = {{article_obj.id}} <br />
+    Passed Object Title = {{article_obj.title}} <br />
+    Passed Object Content = {{article_obj.content}} <br />
+    {% endif %}
+
+    {% endblock base %}
     ```

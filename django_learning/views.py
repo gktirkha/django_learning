@@ -16,22 +16,3 @@ def home_view(request):
                }
     HTML_STRING = render_to_string("home_view.html", context=context)
     return HttpResponse(HTML_STRING)
-
-
-def article_search_view(request):
-    query = request.GET['q']
-    try:
-        query = int(query)
-    except:
-        query = None
-
-    article_obj = None
-    try:
-        article_obj = Article.objects.get(id=query)
-    except:
-        article_obj = None
-
-    context = {
-        'article_obj': article_obj
-    }
-    return render(request=request, context=context, template_name='articles/search.html')
