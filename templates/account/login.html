@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block base %}
+
+<div style="margin-top: 30px;">
+    {% if error %}
+    <p style="color: red;"> {{error}} </p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label for="username">User Name</label>
+            <input type="text" name="username" placeholder="User Name" />
+        </div>
+        <div style="margin-top: 10px;">
+            <label for="password">Password</label>
+            <input type="password" name="password" placeholder="Password" />
+        </div>
+        <button type="submit">Login</button>
+    </form>
+</div>
+
+{% endblock base %}

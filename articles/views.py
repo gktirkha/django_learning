@@ -17,6 +17,7 @@ def article_detail_view(request: HttpRequest, id):
 def article_search_view(request: HttpRequest):
     query = None
     article_obj = None
+    context = {}
 
     try:
         query = request.GET['q']
@@ -25,10 +26,8 @@ def article_search_view(request: HttpRequest):
     except:
         query = None
         article_obj = None
+        context['article_obj'] = article_obj
 
-    context = {
-        'article_obj': article_obj
-    }
     return render(request=request, context=context, template_name='articles/search.html')
 
 

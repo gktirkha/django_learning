@@ -199,13 +199,13 @@ python manage.py migrate
 
 1. in TEMPLATES in django_learning/settings.py add templates directory as follow
     ```python
-        TEMPLATES = [
-        {
-            'DIRS': [
-                BASE_DIR / 'templates', #<------------- add here (make sure to add ``BASE_DIR /`` to every directory you want to add)
-            ],  
-        },
-        ]
+    TEMPLATES = [
+    {
+        'DIRS': [
+            BASE_DIR / 'templates', #<------------- add here (make sure to add ``BASE_DIR /`` to every directory you want to add)
+        ],  
+    },
+    ]
     ```
 
 
@@ -583,3 +583,112 @@ admin.site.register(Article, ArticleAdmin)
 
     {% endblock base %}
     ```
+
+# Adding Log-in Page
+To deal with logging or logging out, I have created another module called accounts
+1. create module name accounts
+    ```bash
+    python manage.py startapp accounts
+    ```
+
+1. Register it in ```django_learning/settings.py```
+    ```python
+    INSTALLED_APPS = [
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'articles',
+        'accounts', #<------------ added accounts
+    ]
+    ```
+
+1. create view in ```accounts/views.py``` **(login_view)**
+    ```python
+    from django.contrib.auth import login, authenticate
+    from django.shortcuts import render, redirect
+    from django.http import HttpRequest
+
+
+    def login_view(request: HttpRequest):
+
+        # checking if request is a POST request
+        if request.method == 'POST':
+            # getting username and passwords
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+
+            # authenticate user
+            user = authenticate(
+                request=request, username=username, password=password,)
+
+            # check if user is invalid, if invalid re-render page with error
+            if user is None:
+                return render(request=request, template_name='account/login.html', context={"error": "Invalid Username Or Password"})
+
+            # if user is valid log the user in
+            login(user=user,request=request)
+
+            # re-direct user to whatever page you want
+            return redirect("/admin")
+
+        # for GET requests
+        return render(request=request, template_name='account/login.html', context={})
+
+    ```
+
+1. create ```templates/account/login.html```
+    ```html
+    {% extends "base.html" %}
+
+    {% block base %}
+
+    <div style="margin-top: 30px;">
+        <!-- check if there is error, if error show message -->
+        {% if error %}
+        <p style="color: red;"> {{error}} </p>
+        {% endif %}
+        <!-- Login Form, as action is not specified it will target current url -->
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                <label for="username">User Name</label>
+                <input type="text" name="username" placeholder="User Name" />
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="password">Password</label>
+                <input type="password" name="password" placeholder="Password" />
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    {% endblock base %}
+    ```
+
+1. add paths in ```django_learning/urls.py```
+    ```python
+    from django.contrib import admin
+    from django.urls import path
+    from .views import *
+    from articles import views as article
+    from accounts import views as accounts
+
+    urlpatterns = [
+        path('', home_view),
+        path('admin/', admin.site.urls),
+
+        # For Articles
+        path('articles/', article.article_search_view),
+        path('articles/create/', article.article_create_view),
+        path('articles/<int:id>', article.article_detail_view),
+
+        # For accounts
+        path('login', accounts.login_view),
+
+    ]
+
+    ```
+    > we can use ```print(request.user.is_authenticated)``` to check if user is authenticated
