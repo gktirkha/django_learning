@@ -19,6 +19,7 @@ prerequisites
 
 # Installing Django
 run pip install "Django>=3.2,<3.3" to install django
+> change version to latest version, I am learning from old tutorials/books that is why I am using an old version
 
 # Creating requirements.txt
 this file is used to store name of packages that we have installed to make the project, it also store dependencies that automatically gets installed while we install a package to make requirements.txt run
@@ -28,12 +29,12 @@ pip freeze > requirements.txt
 
 # Installing packages from requirements.txt
 run 
-```
+```bash
 pip install -r requirements.txt
 ```
 
-# creating django project 
-```
+# Creating django project 
+```bash
 django-admin startproject <your project name> .
 ```
 > . at the end of the command indicates current directory, you may replace it the directory where you want to create django project
@@ -41,7 +42,7 @@ django-admin startproject <your project name> .
 if done correctly following will be the directory structure
 > for future reference name of my project is ```django_learning```
 
-```
+```bash
 .
 ├── manage.py
 ├── .venv
@@ -56,13 +57,13 @@ if done correctly following will be the directory structure
 
 # Running Server
 to start debug server run 
-```
+```bash
 python manage.py reserver
 ```
 
 it will give following output 
 
-```
+```bash
 Watching for file changes with StatReloader
 Performing system checks...
 
@@ -82,13 +83,13 @@ hit the url in response (http://127.0.0.1:8000/) to view the django web page
 
 # Resolving  warning 
 to resolve
-```
+```bash
 You have 18 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
 Run 'python manage.py migrate' to apply them.
 ```
 
 run 
-```
+```bash
 python manage.py migrate
 ```
 
@@ -96,7 +97,7 @@ python manage.py migrate
 1. inside your project folder (django_learning) in my case, create views.py
 
 1. inside views .py add following 
-    ```
+    ```python
     from django.http import HttpResponse
     def home_view(request):
         return HttpResponse("<h1>Hello World</h1>")
@@ -105,7 +106,7 @@ python manage.py migrate
     - import home_view by ```from .views import home_view```
     - in urlpatterns list add ```path('',view=home_view)```
     - it would look like
-        ```
+        ```python
         from django.contrib import admin
         from django.urls import path
         from .views import home_view
@@ -121,7 +122,7 @@ python manage.py migrate
 # Creating modules
 1. run ```django-admin startapp <module name>``` (article in my case)
 1. in INSTALLED_APPS in django_learning/settings.py list, add your app name
-    ```
+    ```python
     INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -137,7 +138,7 @@ python manage.py migrate
 1. in articles/models.py (replace article with module name) create class that extends ```models.Model```
 1. add fields in class <br/>
     for example
-    ```
+    ```python
     from django.db import models
     class Article(models.Model):
         title = models.TextField()
@@ -145,7 +146,7 @@ python manage.py migrate
     ```
 
 1. run 
-    ```
+    ```bash
     python manage.py makemigrations
     python manage.py migrate 
     ```
@@ -153,7 +154,7 @@ python manage.py migrate
 # Saving Models to storage for feature use
 1. run ```python manage.py shell```, it will open django python shell
 1. in shell run
-    ```
+    ```python
     from articles.models import Article
     obj = Article.objects.create(title="title", content="content")
     obj.save()
@@ -168,7 +169,7 @@ python manage.py migrate
 1. create base.html
 1. create home_view.html <br/>
     folder will look like
-    ```
+    ```bash
     .
     ├── articles
     │   ├── admin.py
@@ -197,7 +198,7 @@ python manage.py migrate
     ```
 
 1. in TEMPLATES in django_learning/settings.py add templates directory as follow
-    ```
+    ```python
         TEMPLATES = [
         {
             'DIRS': [
@@ -209,44 +210,50 @@ python manage.py migrate
 
 
 1. in django_learning/views.py add following imports
-    ```
+    ```python
     from articles.models import Article
     from django.template.loader import render_to_string
     ```
 1. get the stored object by (only if you have saved a model)
 
-    ```article = Article.objects.get(id=1)```
+    ```python
+    article = Article.objects.get(id=1)
+    ```
 
 1. store model properties into a map as follow
-    ```
+    ```python
     context = {"title": article.title,
                "content": article.content,
                "id": article.id, }
     ```
 
 1. pass dictionary to html page by
-    ```HTML_STRING = render_to_string("home_view.html", context=context)```
+    ```python
+    HTML_STRING = render_to_string("home_view.html", context=context)
+    ```
 
 1. return response by
-    ```return HttpResponse(HTML_STRING)```
+    ```python
+    return HttpResponse(HTML_STRING)
+    ```
 
 # Sending variables to html
 1. in templates/home_view.html add all the variable that you want to receive from django_learning/views.py in double curly brackets ({{}}), make sure the variable names are same as the name you are passing through context directory
 
 home_view.html will look like
-```
+```html
 <h1>article title = {{title}}<br />article content = {{content}}<br />id = {{id}}</h1>
 ```
 1. refresh the web page and you will get the values that you stored in the model
 
-# extending a template
+# Extending a template
 > in templates/home_view.html
 1. add ``{% extends "base.html" %}`` at the top, base.html will be the file, where you want to display content of home_view.html
 1. add ```{% block heading %}``` to the beginning of of content you want to display in base.html
     > you can put any name instead of ```heading```
 1. add {% endblock heading %} to the end of of content you want to display in base.html
 1. home_view.html should look like 
-    ```
+    ```html
     <!-- Content here will be replaced in view  -->
     {% extends "base.html" %}
     {% block heading %}
@@ -256,7 +263,7 @@ home_view.html will look like
     ```
 
 1. **in templates/base.html** add following code to the place where you want to display content of heading block
-    ```
+    ```html
     {% block heading %}
     <p>any thing here will we replaced</p>
     {% endblock heading %}
@@ -264,7 +271,7 @@ home_view.html will look like
     > any thing between ```{% block heading %}``` and ```{% endblock heading %}``` will be replaced by the content provided by home_view.html
 
     base.html will look like
-    ```
+    ```html
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -286,7 +293,7 @@ home_view.html will look like
 
 # Passing List to html
 1. pass the list to html page using context
-    ```
+    ```python
     from django.template.loader import render_to_string
     from articles.models import Article
     from django.http import HttpResponse
@@ -310,14 +317,14 @@ home_view.html will look like
 
 1. in html page we can use for loops
     - start for loop as:
-    ```
+    ```html
     
     {% for x in my_list %}
      
     ```
     - access variable using the name you do in python like ```{{x}}```
     complete code
-    ```
+    ```html
     <ul>
     {% for x in my_list %}
     <li>{{x}}</li>
@@ -343,12 +350,12 @@ home_view.html will look like
 
 # Dynamic Routing
 1. in ```django_learning/urls.py``` add dynamic route as
-    ```
+    ```python
     path('articles/<int:id>', article_detail_view),
     ```
 
 1. in ```articles/views.py``` add your logic
-    ```
+    ```python
     from django.shortcuts import render
     from .models import Article
 
@@ -369,13 +376,13 @@ home_view.html will look like
 
 # Creating an admin 
 run 
-```
+```bash
 python manage.py createsuperuser
 ```
 
 enter id and password
 hit 
-```
+```bash
 http://127.0.0.1:8000/admin
 ```
 enter id and password to login
@@ -390,17 +397,33 @@ enter id and password to login
     1. ```search_fields = ['title']```
     > these two lines will do following
 
-    list_display will add fields in table in admin panel
+    - ```list_display = ['id', 'title']``` list_display will added fields in table in admin panel as follow
+
     |id|title|
     |:--|:--|
     |1|title 1|
     |2|title 2|
 
-    > search_fields will add a search bar, and we will be able to search object by the attributes we passed in list
+    - ```search_fields = ['title']```  will add a search bar, and we will be able to search object by the attributes we passed in list
 
-# Basic Get request
+**Final Code** ```articles/admin.py``` :
+
+```python
+from django.contrib import admin
+from .models import Article
+
+
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = ['id', 'title']
+    search_fields = ['title']
+
+
+admin.site.register(Article, ArticleAdmin)
+```
+
+# Simple Get request
 1. create ```templates/articles/search.html```
-    ```
+    ```html
     {% extends "base.html" %}
     {% block base %}
 
@@ -412,7 +435,7 @@ enter id and password to login
     {% endblock base %}
     ```
 1. add search box in ```templates/base.html```
-    ```
+    ```html
     <!DOCTYPE html>
     <html lang="en">
 
@@ -439,7 +462,7 @@ enter id and password to login
     ```
 
 1. create ```article_search_view``` in ```articles/views.py```
-    ```
+    ```python
     def article_search_view(request: HttpRequest):
         query = None
         article_obj = None
@@ -459,8 +482,33 @@ enter id and password to login
     ```
     > we can get request parameters by ```query = request.GET['<Parameter Name>']```
 
-1. add path in ```django_learning/urls.py```
+    > To minimize code, we can use render from django shortcuts, and I'll use it from current codes, Usage
+
+    ```python
+    from django.shortcuts import render
+    from .models import Article
+    from django.http import HttpRequest
+
+    def article_search_view(request: HttpRequest):
+        query = None
+        article_obj = None
+
+        try:
+            query = request.GET['q']
+            query = int(query)
+            article_obj = Article.objects.get(id=query)
+        except:
+            query = None
+            article_obj = None
+
+        context = {
+            'article_obj': article_obj
+        }
+        return render(request=request, context=context, template_name='articles/search.html') #<-------------- using render instead of render_to_string
     ```
+
+1. add path in ```django_learning/urls.py```
+    ```python
     from django.contrib import admin
     from django.urls import path
     from .views import *
@@ -478,7 +526,7 @@ enter id and password to login
 
 # Simple Post Request
 1. in ```articles/views.py``` add create_view
-    ```
+    ```python
     def article_create_view(request: HttpRequest):
         context = {}
 
@@ -494,7 +542,7 @@ enter id and password to login
     > ```if (request.method == 'POST'):``` to perform actions only on post request
 
 1. register url in ```django_learning/urls.py```
-    ```
+    ```python
     urlpatterns = [
         path('', home_view),
         path('admin/', admin.site.urls),
@@ -507,7 +555,7 @@ enter id and password to login
     > always remember just like express in java-script, order of url does effect the program
 
 1. create ```templates/articles/create.html``` 
-    ```
+    ```HTML
     {% extends "base.html" %}
     {% block base %}
     <h1>Create.html</h1>
