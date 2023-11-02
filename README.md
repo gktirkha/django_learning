@@ -584,7 +584,7 @@ admin.site.register(Article, ArticleAdmin)
     {% endblock base %}
     ```
 
-# Adding Log-in Page
+# Creating Login Page
 To deal with logging or logging out, I have created another module called accounts
 1. create module name accounts
     ```bash
@@ -691,4 +691,128 @@ To deal with logging or logging out, I have created another module called accoun
     ]
 
     ```
-    > we can use ```print(request.user.is_authenticated)``` to check if user is authenticated
+    > we can use ```request.user.is_authenticated``` to check if user is authenticated
+
+# Creating Logout Page
+as discussed above we can use ```request.user.is_authenticated``` in python program to check if user is authenticated or not, but what if want to check the exact in html template?
+
+django is here to save our day in ```django_learning/settings.py``` check ```context_processors```
+
+```python
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            BASE_DIR / 'templates'
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [ # <--- these are the libraries can be accessed in any html template as django already imports these libraries to any html template we render
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request', 
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+```
+
+So, django by default imports ```django.template.context_processors request and django.contrib.auth.context_processors.auth``` 
+
+it means we can use ```request.user.is_authenticated``` in html pages as well, without any need of passing it through context
+
+1. we can edit our ```templates/account/login.html``` as 
+
+    ```html
+    {% extends "base.html" %}
+
+    {% block base %}
+
+    <div style="margin-top: 30px;">
+        <!-- if user is not authenticated, show login form -->
+        {% if not request.user.is_authenticated %}
+        {% if error %}
+        <p style="color: red;"> {{error}} </p>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                <label for="username">User Name</label>
+                <input type="text" name="username" placeholder="User Name" />
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="password">Password</label>
+                <input type="password" name="password" placeholder="Password" />
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        {% else %}
+        <!-- else show logout message -->
+        <p>Your're already logged in, would you like to <a href="/logout/">logout</a></p>
+        {% endif %}
+    </div>
+
+    {% endblock base %}
+    ```
+    >login and re-visit ```http://127.0.0.1:8000/login``` to confirm
+
+1. create ```templates/account/logout.html``` 
+    ```html
+    {% extends "base.html" %}
+
+    {% block base %}
+
+    <div style="margin-top: 30px;">
+        <!-- if user if logged in, show logout confirmation for -->
+        {% if request.user.is_authenticated %}
+        <form method="post">
+            {% csrf_token %}
+            <p>are you sure you want to logout</p>
+            <button type="submit">Yes, Logout</button>
+        </form>
+        {% else %}
+        <!-- else show login link -->
+        <p>Your're not logged in, would you like to <a href="/login/">Login</a></p>
+        {% endif %}
+    </div>
+
+    {% endblock base %}
+    ```
+
+1. in ```accounts/views.py``` add ```logout_view```
+    ```python
+    from django.contrib.auth import login, authenticate, logout #<-- add logout import
+
+    def logout_view(request: HttpRequest):
+        if (request.method == 'POST'):
+            logout(request=request)
+            return redirect('/login/')
+
+        return render(request=request, template_name='account/logout.html')
+    ```
+
+1. register url in ```django_learning/urls.py```
+    ```python
+    from django.contrib import admin
+    from django.urls import path
+    from .views import home_view
+    from articles import views as article
+    from accounts import views as accounts
+
+    urlpatterns = [
+        path('', home_view),
+        path('admin/', admin.site.urls),
+
+        # For Articles
+        path('articles/', article.article_search_view),
+        path('articles/create/', article.article_create_view),
+        path('articles/<int:id>', article.article_detail_view),
+
+        # For accounts
+        path('login/', accounts.login_view),
+        path('logout/', accounts.logout_view),
+
+    ]
+
+    ```

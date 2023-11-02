@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from .views import *
+from .views import home_view
 from articles import views as article
 from accounts import views as accounts
 
@@ -14,6 +14,7 @@ urlpatterns = [
     path('articles/<int:id>', article.article_detail_view),
 
     # For accounts
-    path('login', accounts.login_view),
+    path('login/', accounts.login_view),
+    path('logout/', accounts.logout_view),
 
 ]
