@@ -838,3 +838,143 @@ it means we can use ```request.user.is_authenticated``` in html pages as well, w
     ```
 
 1. logout and then hit ```http://127.0.0.1:8000/articles/create/``` you will be redirected to login page with next argument, we will handle the next argument later.
+
+# Using django forms basics
+we want to create django form for article creation, so we make ```articles/forms.py```
+
+1. in ```articles/forms.py``` make a class extending ```from django import forms.Form```
+
+    ```python
+    from django import forms
+    class ArticleForm(forms.Form):
+    ```
+
+1. declare fields in ```ArticleForm``` class as per requirement
+    ```python
+    class ArticleForm(forms.Form):
+        title = forms.CharField()
+        content = forms.CharField()
+    ```
+
+1. in ```articles/views.py```
+    - import ```ArticleForm``` class
+        ```python
+        from .forms import ArticleForm
+        ```
+
+    - in ```article_create_view``` initialize ```ArticleForm()``` instance and pass it to ```create.html``` using context
+        ```python
+        @login_required
+        def article_create_view(request: HttpRequest):
+            form = ArticleForm(request.POST or None) # initializing ArticleFrom class instance
+            context = {'form': form}
+
+            if (request.method == 'POST'):
+                title = request.POST.get('title')
+                content = request.POST.get('content')
+                article_obj = Article.objects.create(title=title, content=content)
+                context['article_obj'], context['created'] = article_obj,  True
+
+            return render(request=request, context=context, template_name='articles/create.html')
+        ```
+
+1. in ```templates/articles/create.html``` delete fields which we previously made and use form we are passing through context
+
+    ```html
+    {% extends "base.html" %}
+    {% block base %}
+    <h1>Create.html</h1>
+
+    {% if not created %}
+    <div style="margin-top: 30px;">
+        <form action="." method="post">
+            {% csrf_token %}
+            <!-- {{form.as_p}} is going to render our form that we passed through context in paragraph format -->
+            {{form.as_p}}
+            <button type="submit">Create Article</button>
+        </form>
+    </div>
+
+    {% else %}
+    Your article was created <br/>
+    <a href="/articles/{{article_obj.id}}"> {{article_obj.title}} </a>
+    {% endif %}
+
+    {% endblock base %}
+    ```
+
+    now hit ```http://127.0.0.1:8000/articles/create/``` and see the changes
+
+1. Adding validation for creating article
+    - add validators in ```articles/forms.py```
+
+        ```python
+        from typing import Any
+        from django import forms
+
+
+        class ArticleForm(forms.Form):
+            title = forms.CharField()
+            content = forms.CharField()
+            """
+            Validation or clean methods, to validate forms or validate the forms we have two methods
+            1. field specific validation
+            2. whole form validation
+            """
+
+            # field validation, to do field validation create a method called clean_<your field name>(self)
+
+            def clean_title(self) -> str:
+                # Dictionary containing the field i.e it will only be containing title only ({'title': 'value'})
+                cleaned_data = dict(self.cleaned_data)
+                title = cleaned_data.get('title')
+                # add validation logic here
+                if 'form' in title.lower():
+                    raise forms.ValidationError(
+                        'substring form can not be present in title')
+
+                return title
+
+            # whole form validation declare method called clean(self)
+            # remember you can not have field validation methods if you have whole form validation method.
+
+            def clean(self) -> dict[str, Any]:
+                form_str = 'form'
+                # Dictionary containing all of the fields ({'title': 'value','content':'value'})
+                cleaned_data = dict(self.cleaned_data)
+                title = str(cleaned_data.get('title'))
+                content = str(cleaned_data.get('content'))
+                # here can also throw both type of error field error as well as non-field error
+                if form_str in content.lower() and form_str in title.lower():
+                    raise forms.ValidationError(
+                        'substring form present in both, content and title')
+                
+                if form_str in title.lower():
+                    self.add_error(field='title',error='title contains substring form')
+
+                if form_str in content.lower():
+                    self.add_error(field='content',error='content contains substring form')
+
+                return cleaned_data
+        ```
+    
+    - check for validation in ```article_create_view```
+        ```python
+        @login_required
+        def article_create_view(request: HttpRequest):
+            form = ArticleForm(request.POST or None)
+            context = {'form': form}
+
+            if (request.method == 'POST'):
+                # Checking if submitted data is validated
+                if form.is_valid():
+                    # getting cleaned from form
+                    title = form.cleaned_data.get('title')
+                    content = form.cleaned_data.get('content')
+
+                    article_obj = Article.objects.create(title=title, content=content)
+                    context['article_obj'], context['created'] = article_obj,  True
+
+            return render(request=request, context=context, template_name='articles/create.html')    
+        ```
+        now hit ```http://127.0.0.1:8000/articles/create/``` and try to create article, in code above we have added validation that we can not have string ```form``` in title or content

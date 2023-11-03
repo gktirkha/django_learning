@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Article
 from django.http import HttpRequest
 from django.contrib.auth.decorators import login_required
+from .forms import ArticleForm
 
 
 def article_detail_view(request: HttpRequest, id):
@@ -13,6 +14,7 @@ def article_detail_view(request: HttpRequest, id):
 
     context = {'article_obj': article_obj}
     return render(request=request, template_name='articles/details.html', context=context)
+
 
 def article_search_view(request: HttpRequest):
     query = None
@@ -30,14 +32,17 @@ def article_search_view(request: HttpRequest):
 
     return render(request=request, context=context, template_name='articles/search.html')
 
+
 @login_required
 def article_create_view(request: HttpRequest):
-    context = {}
+    form = ArticleForm(request.POST or None)
+    context = {'form': form}
 
     if (request.method == 'POST'):
-        title = request.POST.get('title')
-        content = request.POST.get('content')
-        article_obj = Article.objects.create(title=title, content=content)
-        context['article_obj'], context['created'] = article_obj,  True
+        if form.is_valid():
+            title = form.cleaned_data.get('title')
+            content = form.cleaned_data.get('content')
+            article_obj = Article.objects.create(title=title, content=content)
+            context['article_obj'], context['created'] = article_obj,  True
 
     return render(request=request, context=context, template_name='articles/create.html')

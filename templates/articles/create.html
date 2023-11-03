@@ -3,24 +3,17 @@
 <h1>Create.html</h1>
 
 {% if not created %}
-
 <div style="margin-top: 30px;">
     <form action="." method="post">
         {% csrf_token %}
-        <div style="margin-top: 30px;">
-            <input type="text" name="title" placeholder="Title" required />
-        </div>
-        <div style="margin-top: 10px;">
-            <textarea name="content" placeholder="Content" required></textarea>
-        </div>
+        {{form.as_p}}
         <button type="submit">Create Article</button>
     </form>
 </div>
 
 {% else %}
-Passed Object Id = {{article_obj.id}} <br />
-Passed Object Title = {{article_obj.title}} <br />
-Passed Object Content = {{article_obj.content}} <br />
+Your article was created <br/>
+<a href="/articles/{{article_obj.id}}"> {{article_obj.title}} </a>
 {% endif %}
 
 {% endblock base %}
