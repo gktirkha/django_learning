@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Article
 from django.http import HttpRequest
+from django.contrib.auth.decorators import login_required
 
 
 def article_detail_view(request: HttpRequest, id):
@@ -12,7 +13,6 @@ def article_detail_view(request: HttpRequest, id):
 
     context = {'article_obj': article_obj}
     return render(request=request, template_name='articles/details.html', context=context)
-
 
 def article_search_view(request: HttpRequest):
     query = None
@@ -30,7 +30,7 @@ def article_search_view(request: HttpRequest):
 
     return render(request=request, context=context, template_name='articles/search.html')
 
-
+@login_required
 def article_create_view(request: HttpRequest):
     context = {}
 

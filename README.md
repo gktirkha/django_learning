@@ -816,3 +816,25 @@ it means we can use ```request.user.is_authenticated``` in html pages as well, w
     ]
 
     ```
+
+# Making login required mandatory for create article
+1. import login_required decorator
+
+    ```python
+    from django.contrib.auth.decorators import login_required
+    ```
+
+1. add ```@login_required``` decorator to the ```article_create_view```
+
+    ```python
+    @login_required
+    def article_create_view(request: HttpRequest):
+    ```
+
+1. add ```LOGIN_URL``` variable and assign your login path in ```django_learning/settings.py```
+
+    ```python
+    LOGIN_URL = '/login
+    ```
+
+1. logout and then hit ```http://127.0.0.1:8000/articles/create/``` you will be redirected to login page with next argument, we will handle the next argument later.
