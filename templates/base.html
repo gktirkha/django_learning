@@ -8,12 +8,10 @@
 </head>
 
 <body>
-    <h1>Search Box</h1>
     <form action="/articles/">
-        <input type="text" name="q">
+        <input type="text" name="q" placeholder="Search Box">
         <input type="submit">
     </form>
-    <br/>
     {% block base %}
     <p>any thing here will we replaced</p>
     {% endblock base %}

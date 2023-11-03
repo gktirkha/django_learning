@@ -300,7 +300,7 @@ home_view.html will look like
 
 
     def home_view(request):
-        article = Article.objects.get(id=2)
+        article = Article.objects.get(id=1)
         my_list = [1, 2, 3, 4, 5, 6]
         query_set = Article.objects.all()
         print(query_set)
@@ -471,6 +471,8 @@ admin.site.register(Article, ArticleAdmin)
             query = request.GET['q']
             query = int(query)
             article_obj = Article.objects.get(id=query)
+            context['article_obj'] = article_obj
+
         except:
             query = None
             article_obj = None
@@ -497,6 +499,8 @@ admin.site.register(Article, ArticleAdmin)
             query = request.GET['q']
             query = int(query)
             article_obj = Article.objects.get(id=query)
+            context['article_obj'] = article_obj
+
         except:
             query = None
             article_obj = None
@@ -978,3 +982,5 @@ we want to create django form for article creation, so we make ```articles/forms
             return render(request=request, context=context, template_name='articles/create.html')    
         ```
         now hit ```http://127.0.0.1:8000/articles/create/``` and try to create article, in code above we have added validation that we can not have string ```form``` in title or content
+
+> I have done Some Un-Documented Changes, Check Git log / Git History to see changes

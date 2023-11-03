@@ -25,6 +25,7 @@ def article_search_view(request: HttpRequest):
         query = request.GET['q']
         query = int(query)
         article_obj = Article.objects.get(id=query)
+        context['article_obj'] = article_obj
     except:
         query = None
         article_obj = None

@@ -2,15 +2,27 @@
 {% extends "base.html" %}
 {% block base %}
 <h1>Home_View.html</h1>
-<!-- values to be substituted must be enclosed in double curly brackets ("{{variable}}")  -->
-<h1>article title = {{title}}<br />article content = {{content}}<br />id = {{id}} <br /> My List </h1>
+<h2>Passed List For Parsing</h2>
 <ul>
     {% for x in my_list %}
     <li>{{x}}</li>
     {% endfor %}
 </ul>
 
-<h1>Query Set</h1>
+<!-- values to be substituted must be enclosed in double curly brackets ("{{variable}}")  -->
+{% if article_obj %}
+<h2>
+    Article 1 Details
+</h2>
+<h3>
+    Title = {{article_obj.title}}<br />
+    Content = {{article_obj.content}}<br />
+    Id = {{article_obj.id}} <br />
+</h3>
+
+{% endif %}
+
+<h2>All Data in Database</h2>
 <ul>
     {% for x in qs %}
     {% if x.title %}
