@@ -1152,7 +1152,7 @@ We can use forms based on our Models, We are going to use our previously build A
     {% extends "base.html" %}
 
     {% block base %}
-    <h1>Login.html</h1>
+    <h1>Signup.html</h1>
 
     <div style="margin-top: 30px;">
         {% if not request.user.is_authenticated %}
