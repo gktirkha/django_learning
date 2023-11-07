@@ -4,6 +4,7 @@
         "contenttypes",
         "createsuperuser",
         "endfor",
+        "icontains",
         "makemigrations",
         "pycache",
         "startapp",

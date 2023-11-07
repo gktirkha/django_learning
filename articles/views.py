@@ -41,9 +41,7 @@ def article_create_view(request: HttpRequest):
 
     if (request.method == 'POST'):
         if form.is_valid():
-            title = form.cleaned_data.get('title')
-            content = form.cleaned_data.get('content')
-            article_obj = Article.objects.create(title=title, content=content)
+            article_obj = form.save()
             context['article_obj'], context['created'] = article_obj,  True
 
     return render(request=request, context=context, template_name='articles/create.html')

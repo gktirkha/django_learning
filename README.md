@@ -983,4 +983,65 @@ we want to create django form for article creation, so we make ```articles/forms
         ```
         now hit ```http://127.0.0.1:8000/articles/create/``` and try to create article, in code above we have added validation that we can not have string ```form``` in title or content
 
+# Undocumented Changes
 > I have done Some Un-Documented Changes, Check Git log / Git History to see changes
+
+# Model Forms
+We can use forms based on our Models, We are going to use our previously build Article model
+
+
+1. In ```articles/forms.py``` create class ```ArticleForm``` (remove previously created class) that extends ```forms.ModelForm```
+
+    ```python
+    class ArticleForm(forms.ModelForm):
+    ```
+
+1. declare class meta in ```ArticleForm``` class
+    - assign model as Article 
+    - declare fields array containing name of fields that are declared in Articles Model
+    ```python
+    class ArticleForm(forms.ModelForm):
+        class Meta:
+            model = Article
+            fields = ['title', 'content']
+    ```
+
+1. define clean or clean_&lt;field name&gt;() method
+
+    Whole Code
+    ```python
+    from typing import Any
+    from django import forms
+    from .models import Article
+
+
+    class ArticleForm(forms.ModelForm):
+        class Meta:
+            model = Article
+            fields = ['title', 'content']
+
+        def clean(self) -> dict[str, Any]:
+            data = dict(self.cleaned_data)
+            title = data.get('title')
+            # Method to check if data base already contains submitted title
+            qs = Article.objects.filter(title__icontains=title)
+            if qs.exists():
+                self.add_error('title', f"{title} already in used")
+            return super().clean()
+
+    ```
+
+1. in ```articles/views.py``` modify ```article_create_view```
+    ```python
+    @login_required
+    def article_create_view(request: HttpRequest):
+        form = ArticleForm(request.POST or None)
+        context = {'form': form}
+
+        if (request.method == 'POST'):
+            if form.is_valid():
+                article_obj = form.save()
+                context['article_obj'], context['created'] = article_obj,  True
+
+        return render(request=request, context=context, template_name='articles/create.html')
+    ```
