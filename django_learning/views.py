@@ -20,6 +20,7 @@ def home_view(request):
         {"name": "Article Details", "url": "/articles/1"},
         {"name": "Login", "url": "/login/"},
         {"name": "Logout", "url": "/logout/"},
+        {"name": "Signup", "url": "/signup/"},
     ]
     query_set = Article.objects.all()
     context['my_list'], context['qs'], context["article_obj"], context['url_list'] = my_list, query_set, article, url_list

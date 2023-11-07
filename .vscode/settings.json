@@ -7,6 +7,7 @@
         "icontains",
         "makemigrations",
         "pycache",
+        "signup",
         "startapp",
         "startproject",
         "staticfiles",

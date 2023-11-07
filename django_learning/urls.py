@@ -16,5 +16,6 @@ urlpatterns = [
     # For accounts
     path('login/', accounts.login_view),
     path('logout/', accounts.logout_view),
+    path('signup/', accounts.signup_view),
 
 ]

@@ -1129,3 +1129,76 @@ We can use forms based on our Models, We are going to use our previously build A
     </ul>
     {% endblock base %}
     ```
+
+# Built in sign up from
+1. in ```accounts/views.py``` create ```signup_view```
+    ```python
+    # Add following import
+    from django.contrib.auth.forms import UserCreationForm # Django's built in User creation Form
+
+    def signup_view(request : HttpRequest):
+        context = {}
+        signup_form = UserCreationForm(request.POST or None)
+        if signup_form.is_valid():
+            signup_form.save()
+            return redirect("/login")
+        
+        context['form'] = signup_form
+        return render(request= request,context=context,template_name='account/signup.html')
+    ```
+
+1. create ```templates/account/signup.html```
+    ```html
+    {% extends "base.html" %}
+
+    {% block base %}
+    <h1>Login.html</h1>
+
+    <div style="margin-top: 30px;">
+        {% if not request.user.is_authenticated %}
+        {% if error %}
+        <p style="color: red;"> {{error}} </p>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+            <button type="submit">Login</button>
+        </form>
+        {% else %}
+        <p>Your're already logged in, Can not create a user would you like to <a href="/logout/">logout</a></p>
+        {% endif %}
+    </div>
+
+    {% endblock base %}
+    ```
+
+1. add path in ```django_learning/urls.py```
+    ```python
+    urlpatterns = [
+        path('', home_view),
+        path('admin/', admin.site.urls),
+
+        # For Articles
+        path('articles/', article.article_search_view),
+        path('articles/create/', article.article_create_view),
+        path('articles/<int:id>', article.article_detail_view),
+
+        # For accounts
+        path('login/', accounts.login_view),
+        path('logout/', accounts.logout_view),
+        path('signup/', accounts.signup_view),
+
+    ]
+    ```
+
+1. in ```django_learning/views.py``` add url in url_list
+    ```python
+    url_list = [
+            {"name": "admin panel", "url": "/admin/"},
+            {"name": "Create Article", "url": "/articles/create/"},
+            {"name": "Article Details", "url": "/articles/1"},
+            {"name": "Login", "url": "/login/"},
+            {"name": "Logout", "url": "/logout/"},
+            {"name": "Signup", "url": "/signup/"}, # signup url
+        ]
+    ```
