@@ -1202,3 +1202,55 @@ We can use forms based on our Models, We are going to use our previously build A
             {"name": "Signup", "url": "/signup/"}, # signup url
         ]
     ```
+
+# Built in login form 
+Here I am going to replace custom made login form with built in django login form 
+
+1. in ```accounts/views.py``` import user authentication form 
+    ```python
+    from django.contrib.auth.forms import AuthenticationForm
+    ```
+
+1. modify the ```login_view``` as 
+    ```python
+    def login_view(request: HttpRequest):
+        form = None
+        context = {}
+        if request.method == 'POST':
+            form = AuthenticationForm(request=request, data=request.POST)
+            if form.is_valid():
+                user = form.get_user()
+                login(user=user, request=request)
+                return redirect("/")
+
+        else:
+            form = AuthenticationForm(request=request)
+        
+        context['form'] = form
+
+        return render(request=request, template_name='account/login.html', context=context)
+    ```
+
+1. modify ```templates/account/login.html``` to use form passed through context
+    ```html
+    {% extends "base.html" %}
+
+    {% block base %}
+    <h1>Login.html</h1>
+
+    <div style="margin-top: 30px;">
+        {% if not request.user.is_authenticated %}
+        <form method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+            <button type="submit">Login</button>
+        </form>
+        {% else %}
+        <p>Your're already logged in, would you like to <a href="/logout/">logout</a></p>
+        {% endif %}
+    </div>
+
+    {% endblock base %}
+    ```
+
+> visit http://localhost:8000/login/ to view changes
