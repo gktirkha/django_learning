@@ -22,6 +22,11 @@
 
 {% endif %}
 
+<h2>All Urls Available</h2>
+{% for x in url_list %}
+    <a href="{{x.url}}"> {{x.name}} </a> <br>
+{%endfor%}
+
 <h2>All Data in Database</h2>
 <ul>
     {% for x in qs %}

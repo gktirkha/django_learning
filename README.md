@@ -1045,3 +1045,87 @@ We can use forms based on our Models, We are going to use our previously build A
 
         return render(request=request, context=context, template_name='articles/create.html')
     ```
+
+# Adding Links in Home view
+1. pass list of all urls in home_view in ```django_learning/views.py```
+    ```python
+    from django.template.loader import render_to_string
+    from articles.models import Article
+    from django.http import HttpResponse
+    from django.shortcuts import render
+
+
+    def home_view(request):
+        context = {}
+        article = None
+
+        try:
+            article = Article.objects.get(id=1)
+        except:
+            article = None
+
+        my_list = [1, 2, 3, 4, 5, 6]
+        url_list = [
+            {"name": "admin panel", "url": "/admin/"},
+            {"name": "Create Article", "url": "/articles/create/"},
+            {"name": "Article Details", "url": "/articles/1"},
+            {"name": "Login", "url": "/login/"},
+            {"name": "Logout", "url": "/logout/"},
+        ] # list of all urls with name
+        query_set = Article.objects.all()
+        context['my_list'], context['qs'], context["article_obj"], context['url_list'] = my_list, query_set, article, url_list
+
+        HTML_STRING = render_to_string("home_view.html", context=context)
+        return HttpResponse(HTML_STRING)
+
+    ```
+
+1. parse in ```templates/home_view.html```
+    ```html
+    <h2>All Urls Available</h2>
+    {% for x in url_list %}
+        <a href="{{x.url}}"> {{x.name}} </a> <br>
+    {%endfor%}
+    ```
+
+1. whole file 
+    ```html
+    <!-- Content here will be replaced in view  -->
+    {% extends "base.html" %}
+    {% block base %}
+    <h1>Home_View.html</h1>
+    <h2>Passed List For Parsing</h2>
+    <ul>
+        {% for x in my_list %}
+        <li>{{x}}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- values to be substituted must be enclosed in double curly brackets ("{{variable}}")  -->
+    {% if article_obj %}
+    <h2>
+        Article 1 Details
+    </h2>
+    <h3>
+        Title = {{article_obj.title}}<br />
+        Content = {{article_obj.content}}<br />
+        Id = {{article_obj.id}} <br />
+    </h3>
+
+    {% endif %}
+
+    <h2>All Urls Available</h2>
+    {% for x in url_list %}
+        <a href="{{x.url}}"> {{x.name}} </a> <br>
+    {%endfor%}
+
+    <h2>All Data in Database</h2>
+    <ul>
+        {% for x in qs %}
+        {% if x.title %}
+        <li> <a href="/articles/{{x.id}}">{{x.title}}</a> </li>
+        {% endif %}
+        {%endfor%}
+    </ul>
+    {% endblock base %}
+    ```
