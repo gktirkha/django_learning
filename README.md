@@ -1257,7 +1257,7 @@ Here I am going to replace custom made login form with built in django login for
 
 # Preparing For Production server
 
-> I tried using [django-dotenv](https://pypi.org/project/django-dotenv/) but it does not work well with production server so I am not using it , instead I am Using gunicorn for setting environment variables as we are already going to use gunicorn in production as python server
+> I tried using [django-dotenv](https://pypi.org/project/django-dotenv/) but it does not work well with production server so I am not using it , instead I am Using gunicorn for setting environment variables as we are already going to use gunicorn in production as python server, I might use [django-dotenv](https://pypi.org/project/django-dotenv/) for unit testing as we can't use gunicorn for that
 
 
 1. Installing gunicorn
@@ -1299,7 +1299,6 @@ Here I am going to replace custom made login form with built in django login for
     TIME_ZONE = 'Asia/Kolkata'
     ```
 
-    > following steps in ```gunicorn.conf.py``` (make the file if does not exists)
 
 1. collect all static files 
     ```bash
@@ -1307,7 +1306,9 @@ Here I am going to replace custom made login form with built in django login for
     ```
     it will generate static folder with admin static files
 
+    
 1. configure gunicorn options and add environment variables
+    > following steps in ```gunicorn.conf.py``` (make the file if does not exists)
     ```python
     # number of worker nodes depending on your system
     workers = 8
@@ -1337,7 +1338,7 @@ Here I am going to replace custom made login form with built in django login for
 
     ```
 
-1. get WSGI application in settings.py find value of ```WSGI_APPLICATION```
+1. in settings.py find value of ```WSGI_APPLICATION```
     ```python
     WSGI_APPLICATION = 'django_learning.wsgi.application'
     ```    
@@ -1373,3 +1374,59 @@ Here I am going to replace custom made login form with built in django login for
     ```
 
 1. re-run gunicorn and now check ```http://localhost:8000/admin``` we will now have css there
+
+# Writing unit tests
+> gunicorn can't be used for test cases, so for configuring environment variables we are using [django-dotenv](https://pypi.org/project/django-dotenv/)
+
+1. Install ```django-dotenv```
+    ```bash
+    pip install django-dotenv
+    ```
+
+1. in ```manage.py```
+    ```python
+    # Import dotenv
+    import dotenv
+
+    def main():
+        """Run administrative tasks."""
+        # add this line
+        dotenv.read_dotenv()
+
+    ```
+
+1. create ```django_learning/tests.py```
+    - import test case ```from django.test import TestCase```
+    - make a class that extends ```TestCase```
+    - define functions in class with name starting with ```test_``` and ```self``` as parameter
+    - use self.fail() to fail the test
+    > we can also use self.assert &lt;Condition&gt; methods to assert if test fails
+
+    This code tests the strength of ```SECRET_KEY``` environment variable
+    ```python
+    import os
+    from django.test import TestCase
+    from django.contrib.auth.password_validation import validate_password
+
+
+    class MyTestCases(TestCase):
+        def test_key(self):
+            KEY = os.environ.get('SECRET_KEY')
+            self.assertAlmostEqual
+            try:
+                validate_password(KEY)
+            except Exception as e:
+                message = e.messages
+                self.fail(msg=message)
+    ```
+1. create .env file and define environment variable
+    ```text
+    SECRET_KEY=*)this_is_my_key(*
+    DEBUG=0
+    ```
+
+1. run test cases
+    ```bash
+    python manage.py test
+    ```
+> we can make test.py for every model / app but I might not do that as my current aim is learning
