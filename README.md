@@ -37,7 +37,7 @@ pip install -r requirements.txt
 ```bash
 django-admin startproject <your project name> .
 ```
-> . at the end of the command indicates current directory, you may replace it the directory where you want to create django project
+>  ( . ) at the end of the command indicates current directory, you may replace it the directory where you want to create django project
 
 if done correctly following will be the directory structure
 > for future reference name of my project is ```django_learning```
@@ -61,7 +61,7 @@ to start debug server run
 python manage.py reserver
 ```
 
-it will give following output 
+> it will give following output 
 
 ```bash
 Watching for file changes with StatReloader
@@ -382,7 +382,7 @@ python manage.py createsuperuser
 
 enter id and password
 hit 
-```bash
+```
 http://127.0.0.1:8000/admin
 ```
 enter id and password to login
@@ -1254,3 +1254,122 @@ Here I am going to replace custom made login form with built in django login for
     ```
 
 > visit http://localhost:8000/login/ to view changes
+
+# Preparing For Production server
+
+> I tried using [django-dotenv](https://pypi.org/project/django-dotenv/) but it does not work well with production server so I am not using it , instead I am Using gunicorn for setting environment variables as we are already going to use gunicorn in production as python server
+
+
+1. Installing gunicorn
+    ```bash
+    pip install gunicorn
+    ```
+
+    > following steps in ```django_learning/settings.py```
+
+1. Using environment variables to set properties in settings.py
+    ```python
+    # add this import
+    import os
+
+    # Modify these
+    DEBUG = os.environ.get('DEBUG', '0') == '1'
+
+    # replace Default Key with key that is already there
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'Default key')
+    ```
+
+1. adding allowed hosts: <br/>
+    allowed hosts tells django on what ip should it serve, if you are using custom domain you may put it here, for local host it will be
+    ```python
+    # Modify this
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+    ```
+
+
+1. add STATIC_ROOT <br/>
+    static_root tells the location of the folder that contains all the css and other static files
+    ```python
+    STATIC_ROOT = BASE_DIR / 'static'
+    ```
+
+1. optional: change logs timezone
+    ```python
+    # modify it to change timezone in logs
+    TIME_ZONE = 'Asia/Kolkata'
+    ```
+
+    > following steps in ```gunicorn.conf.py``` (make the file if does not exists)
+
+1. collect all static files 
+    ```bash
+    python manage.py collectstatic  
+    ```
+    it will generate static folder with admin static files
+
+1. configure gunicorn options and add environment variables
+    ```python
+    # number of worker nodes depending on your system
+    workers = 8
+
+    # your linux user name
+    user = 'gtirkha'
+    # your linux user name
+    group = 'gtirkha'
+
+    # location of logs
+    errorlog = 'error.log'
+    accesslog = 'access.log'
+
+    # your ip and port, ,on which you want django to serve
+    bind = '127.0.0.1:8000'
+
+    # your directory of django project
+    chdir = '/home/gtirkha/Documents/django_learning'
+
+    # set Environment variables here
+    # should be in "key=value" form, separated with comma (,)
+    # all the variable will be of string data type
+    raw_env = [
+        "SECRET_KEY=*)this_is_my_key(*",
+        "DEBUG=0",
+    ]
+
+    ```
+
+1. get WSGI application in settings.py find value of ```WSGI_APPLICATION```
+    ```python
+    WSGI_APPLICATION = 'django_learning.wsgi.application'
+    ```    
+    run 
+    ```bash
+    gunicorn django_learning.wsgi:application  
+    ```
+    > don't forget to replace ( . ) before application with colon ( : )
+
+1. visit ```localhost:8000``` to view page ( as we set in gunicorn.conf.py )
+
+    > if you visit ```http://localhost:8000/admin/``` if debug mode is set to false the page will not have any css, as static files are not being served, we will learn how to do it in deployment part using nginx but if you want you can use [whitenoise](https://pypi.org/project/whitenoise/)
+    
+    > following steps are optional as we are going to use nginx to serve static files, how ever if you don't want to do it using nginx you may follow following
+
+1. install whitenoise
+    ```bash
+    pip install whitenoise  
+    ```
+
+1. add whitenoise middleware in ```django_learning/settings.py```
+    ```python
+    MIDDLEWARE = [
+        'django.middleware.security.SecurityMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        "whitenoise.middleware.WhiteNoiseMiddleware", #<-------Whitenoise middleware
+    ]
+    ```
+
+1. re-run gunicorn and now check ```http://localhost:8000/admin``` we will now have css there

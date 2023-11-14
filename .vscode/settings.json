@@ -1,10 +1,18 @@
 {
     "cSpell.words": [
+        "accesslog",
         "asgi",
+        "chdir",
+        "clickjacking",
+        "collectstatic",
         "contenttypes",
         "createsuperuser",
+        "dotenv",
         "endfor",
+        "gtirkha",
+        "gunicorn",
         "icontains",
+        "Kolkata",
         "makemigrations",
         "pycache",
         "signup",
@@ -13,6 +21,7 @@
         "staticfiles",
         "urlpatterns",
         "venv",
+        "whitenoise",
         "wsgi"
     ]
 }

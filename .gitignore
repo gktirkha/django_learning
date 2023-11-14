@@ -1,3 +1,5 @@
+# Source https://github.com/github/gitignore/blob/main/Python.gitignore
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -159,4 +161,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# <------------------------ User Added Files ------------------------>
 
+# Don't add this if you are useing custom static files, I am using default django files so adding this to igmore list
+static
+
+# add this to ensure privacy of env variables, not adding it for tutorial purpose
+# gunicorn.conf.py
