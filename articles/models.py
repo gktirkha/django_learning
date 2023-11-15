@@ -2,6 +2,7 @@ from collections.abc import Iterable
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+from django.db.models.signals import pre_save, post_save
 
 
 class Article(models.Model):
@@ -23,10 +24,33 @@ class Article(models.Model):
         auto_now_add=False, auto_now=False, null=True, blank=True, default=timezone.now)
 
     # adding a slug field
-    slug = models.SlugField(blank=True, null=True)
+    slug = models.SlugField(blank=True, null=True, unique=True)
 
-    def save(self, *args, **kwargs) -> None:
-        if self.slug is None:
-            self.slug = slugify(self.title)
 
-        return super().save(*args, **kwargs)
+def slugify_instance(instance: Article, save: bool = False):
+    slug = slugify(instance.title)
+    qs = Article.objects.filter(slug=slug).exclude(id=instance.id)
+
+    if qs.exists():
+        slug = f"{slug}-{instance.id}"
+
+    instance.slug = slug
+
+    if save:
+        instance.save()
+
+    return instance
+
+
+def article_pre_save(sender, instance: Article, *args, **kwargs):
+    if (instance.slug is None):
+        slugify_instance(instance=instance, save=False)
+
+
+def article_post_save(sender, instance: Article, created, *args, **kwargs):
+    if created:
+        slugify_instance(instance=instance, save=True)
+
+
+pre_save.connect(receiver=article_pre_save, sender=Article)
+post_save.connect(receiver=article_post_save, sender=Article)

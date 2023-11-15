@@ -1529,3 +1529,102 @@ I have done some changes in article models as follow
     ```
 
 1. run server and visit ```http://localhost:8000/admin/articles/article/add/``` to view changes, if you don't add any value to slug field the slugged title will be saved
+
+# Generating Unique slugs and using pre_save and post_save signals
+
+> I have removed save method in ```articles/models.py```
+
+> **pre_save** and **post save** :- pre_save is triggered before save method of model and post save is triggered after save method of model.
+
+> post_save signal provides created bool which can be used to determine if the model was newly created
+
+> I want to add slugs in ```list_display``` and ```search_fields``` so that I can view and search slugs in admin panel table
+
+1. in ```articles/admin.py```
+
+    ```python
+    from django.contrib import admin
+    from .models import Article
+
+
+    class ArticleAdmin(admin.ModelAdmin):
+        # add slugs in these 2 lists
+        list_display = ['id', 'slug', 'title', 'updated_on', 'created_on']
+        search_fields = ['title', 'slug']
+
+
+    admin.site.register(Article, ArticleAdmin)
+    ```
+
+1. ```articles/models.py``` 
+    - import pre_save and post_save
+    
+        ```python
+        from django.db.models.signals import pre_save, post_save
+        ```
+    
+    - define methods to be performed on pre_save and post_save
+    - connect pres_ave and post_save methods
+        ```python
+        pre_save.connect(receiver=your_method_name, sender=your_model_name)
+        post_save.connect(receiver=your_method_name, sender=your_model_name)
+        ```    
+
+    ```python
+    from collections.abc import Iterable
+    from django.db import models
+    from django.utils import timezone
+    from django.utils.text import slugify
+    from django.db.models.signals import pre_save, post_save
+
+
+    class Article(models.Model):
+        title = models.CharField(max_length=120)
+        content = models.TextField()
+
+        # it will automatically add the date at which the model was added to database
+        created_on = models.DateTimeField(auto_now_add=True)
+
+        # it will automatically add the date at which the model was updated in database
+        updated_on = models.DateTimeField(auto_now=True)
+
+        # to get the date time input from user
+        #  null = true allows null value
+        # blank = true allows blank values
+        # default will automatically add the default value
+
+        publish_date = models.DateField(
+            auto_now_add=False, auto_now=False, null=True, blank=True, default=timezone.now)
+
+        # adding a slug field
+        slug = models.SlugField(blank=True, null=True, unique=True)
+
+
+    def slugify_instance(instance: Article, save: bool = False):
+        slug = slugify(instance.title)
+        qs = Article.objects.filter(slug=slug).exclude(id=instance.id)
+
+        if qs.exists():
+            slug = f"{slug}-{instance.id}"
+
+        instance.slug = slug
+
+        if save:
+            instance.save()
+
+        return instance
+
+
+    def article_pre_save(sender, instance: Article, *args, **kwargs):
+        if (instance.slug is None):
+            slugify_instance(instance=instance, save=False)
+
+
+    def article_post_save(sender, instance: Article, created, *args, **kwargs):
+        if created:
+            slugify_instance(instance=instance, save=True)
+
+
+    pre_save.connect(receiver=article_pre_save, sender=Article)
+    post_save.connect(receiver=article_post_save, sender=Article)
+    ```
