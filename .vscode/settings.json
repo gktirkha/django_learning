@@ -13,6 +13,7 @@
         "gunicorn",
         "icontains",
         "Kolkata",
+        "kwargs",
         "makemigrations",
         "pycache",
         "signup",

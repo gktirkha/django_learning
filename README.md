@@ -1505,3 +1505,27 @@ I have done some changes in article models as follow
     > if asked to provide default value for time fields, press 1 to provide default value and the enter ```timezone.now``` and hit enter
 
 1. run server and view changes
+
+# Adding a slug field in article
+1. add slug field in ```articles/models.py```
+
+    ```python
+    slug = models.SlugField(blank=True, null=True)
+    ```
+
+1. override save method to add value to slug fields
+    ```python
+    def save(self, *args, **kwargs) -> None:
+        if self.slug is None:
+            self.slug = slugify(self.title)
+
+        return super().save(*args, **kwargs)
+    ```
+
+1. run in terminal
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate
+    ```
+
+1. run server and visit ```http://localhost:8000/admin/articles/article/add/``` to view changes, if you don't add any value to slug field the slugged title will be saved

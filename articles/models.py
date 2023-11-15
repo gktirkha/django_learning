@@ -1,5 +1,7 @@
+from collections.abc import Iterable
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 
 
 class Article(models.Model):
@@ -19,3 +21,12 @@ class Article(models.Model):
 
     publish_date = models.DateField(
         auto_now_add=False, auto_now=False, null=True, blank=True, default=timezone.now)
+
+    # adding a slug field
+    slug = models.SlugField(blank=True, null=True)
+
+    def save(self, *args, **kwargs) -> None:
+        if self.slug is None:
+            self.slug = slugify(self.title)
+
+        return super().save(*args, **kwargs)
