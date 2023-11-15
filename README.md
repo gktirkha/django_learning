@@ -1430,3 +1430,78 @@ Here I am going to replace custom made login form with built in django login for
     python manage.py test
     ```
 > we can make test.py for every model / app but I might not do that as my current aim is learning
+
+# Editing Models
+I have done some changes in article models as follow
+1. ```articles/models.py```
+
+    ```python
+    from django.db import models
+    from django.utils import timezone
+
+
+    class Article(models.Model):
+        title = models.CharField(max_length=120)
+        content = models.TextField()
+
+        # it will automatically add the date at which the model was added to database
+        created_on = models.DateTimeField(auto_now_add=True)
+
+        # it will automatically add the date at which the model was updated in database
+        updated_on = models.DateTimeField(auto_now=True)
+
+        # to get the date time input from user
+        #  null = true allows null value
+        # blank = true allows blank values
+        # default will automatically add the default value
+        publish_date = models.DateField(
+            auto_now_add=False, auto_now=False, null=True, blank=True, default=timezone.now)
+    ```
+
+1. ```articles/forms.py```
+
+    ```python
+    from typing import Any
+    from django import forms
+    from .models import Article
+
+
+    class ArticleForm(forms.ModelForm):
+        class Meta:
+            model = Article
+            # added publish_date
+            fields = ['title', 'content', 'publish_date']
+
+        def clean(self) -> dict[str, Any]:
+            data = dict(self.cleaned_data)
+            title = data.get('title')
+            qs = Article.objects.filter(title__icontains=title)
+            if qs.exists():
+                self.add_error('title', f"{title} already in used")
+            return super().clean()
+    ```
+
+1. ```articles/admin.py```
+
+    ```python
+    from django.contrib import admin
+    from .models import Article
+
+
+    # added updated_on and created_on
+    class ArticleAdmin(admin.ModelAdmin):
+        list_display = ['id', 'title', 'updated_on', 'created_on']
+        search_fields = ['title']
+
+
+    admin.site.register(Article, ArticleAdmin)
+    ```
+
+1. run in terminal
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate
+    ```
+    > if asked to provide default value for time fields, press 1 to provide default value and the enter ```timezone.now``` and hit enter
+
+1. run server and view changes
