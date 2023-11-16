@@ -22,6 +22,7 @@
         "startproject",
         "staticfiles",
         "urlpatterns",
+        "usermod",
         "venv",
         "whitenoise",
         "wsgi"
