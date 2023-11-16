@@ -12,8 +12,8 @@
 </div>
 
 {% else %}
-Your article was created <br/>
-<a href="/articles/{{article_obj.id}}"> {{article_obj.title}} </a>
+Your article was created <br />
+<a href="{{article_obj.url}}"> {{article_obj.title}} </a>
 {% endif %}
 
 {% endblock base %}

@@ -1717,3 +1717,23 @@ I have done some changes in article models as follow
 </ul>
 {% endblock base %}
 ```
+
+# Using Links form model (making link getter in model class)
+1. in ```articles/models.py``` Create a method which will return link to our object 
+
+    ```python
+    # adding url getter
+        def url(self):
+            return f'/articles/{self.slug}'
+    ```
+
+1. implement use in html files <br/>
+```templates/articles/create.html```
+    ```html
+    <a href="{{article_obj.url}}"> {{article_obj.title}} </a>
+    ```
+
+    ```templates/home_view.html```
+    ```html
+    <li> <a href="{{x.url}}">{{x.title}}</a> </li>
+    ```

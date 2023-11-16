@@ -26,6 +26,10 @@ class Article(models.Model):
     # adding a slug field
     slug = models.SlugField(blank=True, null=True, unique=True)
 
+    # adding url getter
+    def url(self):
+        return f'/articles/{self.slug}'
+
 
 def slugify_instance(instance: Article, save: bool = False):
     slug = slugify(instance.title)
