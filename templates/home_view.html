@@ -31,7 +31,7 @@
 <ul>
     {% for x in qs %}
     {% if x.title %}
-    <li> <a href="/articles/{{x.id}}">{{x.title}}</a> </li>
+    <li> <a href="/articles/{{x.slug}}">{{x.title}}</a> </li>
     {% endif %}
     {%endfor%}
 </ul>

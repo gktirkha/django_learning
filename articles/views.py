@@ -1,16 +1,23 @@
 from django.shortcuts import render
 from .models import Article
-from django.http import HttpRequest
+from django.http import HttpRequest, Http404
 from django.contrib.auth.decorators import login_required
 from .forms import ArticleForm
 
 
-def article_detail_view(request: HttpRequest, id):
+def article_detail_view(request: HttpRequest, slug):
     article_obj = None
-    if id == None:
-        article_obj = Article.objects.get(id=1)
-    else:
-        article_obj = Article.objects.get(id=id)
+    try:
+        article_obj = Article.objects.get(slug=slug)
+
+    except Article.DoesNotExist:
+        raise Http404
+
+    except Article.MultipleObjectsReturned:
+        article_obj = Article.objects.filter(slug=slug).first()
+
+    except:
+        raise Http404
 
     context = {'article_obj': article_obj}
     return render(request=request, template_name='articles/details.html', context=context)
@@ -23,14 +30,13 @@ def article_search_view(request: HttpRequest):
 
     try:
         query = request.GET['q']
-        query = int(query)
-        article_obj = Article.objects.get(id=query)
-        context['article_obj'] = article_obj
+        article_obj = Article.objects.get(slug=query)
+
     except:
         query = None
         article_obj = None
-        context['article_obj'] = article_obj
 
+    context['article_obj'] = article_obj
     return render(request=request, context=context, template_name='articles/search.html')
 
 

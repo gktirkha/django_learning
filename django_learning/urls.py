@@ -11,7 +11,7 @@ urlpatterns = [
     # For Articles
     path('articles/', article.article_search_view),
     path('articles/create/', article.article_create_view),
-    path('articles/<int:id>', article.article_detail_view),
+    path('articles/<slug:slug>', article.article_detail_view),
 
     # For accounts
     path('login/', accounts.login_view),

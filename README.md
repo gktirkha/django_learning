@@ -1628,3 +1628,92 @@ I have done some changes in article models as follow
     pre_save.connect(receiver=article_pre_save, sender=Article)
     post_save.connect(receiver=article_post_save, sender=Article)
     ```
+
+# Using Slugs in stead of id 
+1. in ```django_learning/urls.py```
+
+    ```python
+    path('articles/<slug:slug>', article.article_detail_view) # edit this path
+    ```
+
+1. in ```articles/views.py``` edit ```article_detail_view```
+    ```python
+    def article_detail_view(request: HttpRequest, slug):
+        article_obj = None
+        try:
+            article_obj = Article.objects.get(slug=slug)
+
+        except Article.DoesNotExist:
+            raise Http404
+
+        except Article.MultipleObjectsReturned:
+            article_obj = Article.objects.filter(slug=slug).first()
+
+        except:
+            raise Http404
+
+        context = {'article_obj': article_obj}
+        return render(request=request, template_name='articles/details.html', context=context)
+    ```
+
+1. in ```articles/views.py``` edit ```article_search_view```
+    ```python
+    def article_search_view(request: HttpRequest):
+        query = None
+        article_obj = None
+        context = {}
+
+        try:
+            query = request.GET['q']
+            article_obj = Article.objects.get(slug=query)
+
+        except:
+            query = None
+            article_obj = None
+
+        context['article_obj'] = article_obj
+        return render(request=request, context=context, template_name='articles/search.html')
+    ```
+
+1. edit ```templates/home_view.html``` to use slugs
+```html
+<!-- Content here will be replaced in view  -->
+{% extends "base.html" %}
+{% block base %}
+<h1>Home_View.html</h1>
+<h2>Passed List For Parsing</h2>
+<ul>
+    {% for x in my_list %}
+    <li>{{x}}</li>
+    {% endfor %}
+</ul>
+
+<!-- values to be substituted must be enclosed in double curly brackets ("{{variable}}")  -->
+{% if article_obj %}
+<h2>
+    Article 1 Details
+</h2>
+<h3>
+    Title = {{article_obj.title}}<br />
+    Content = {{article_obj.content}}<br />
+    Id = {{article_obj.id}} <br />
+</h3>
+
+{% endif %}
+
+<h2>All Urls Available</h2>
+{% for x in url_list %}
+    <a href="{{x.url}}"> {{x.name}} </a> <br>
+{%endfor%}
+
+<h2>All Data in Database</h2>
+<ul>
+    {% for x in qs %}
+    {% if x.title %}
+    <!-- Using Slugs instead of id -->
+    <li> <a href="/articles/{{x.slug}}">{{x.title}}</a> </li> 
+    {% endif %}
+    {%endfor%}
+</ul>
+{% endblock base %}
+```
