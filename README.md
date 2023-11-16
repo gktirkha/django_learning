@@ -1,3 +1,6 @@
+# Reference
+I am using [digitalocean guide](https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-22-04#creating-systemd-socket-and-service-files-for-gunicorn) to deploy the django project on server with some changes of my own like not migrating to Postgres (as it is a demo project) and not making gunicorn.socket file
+
 # Preparing For Production server
 
 > I tried using [django-dotenv](https://pypi.org/project/django-dotenv/) but it does not work well with production server so I am not using it , instead I am Using gunicorn for setting environment variables as we are already going to use gunicorn in production as python server, I might use [django-dotenv](https://pypi.org/project/django-dotenv/) for unit testing as we can't use gunicorn for that
