@@ -1,8 +1,27 @@
 from collections.abc import Iterable
 from django.db import models
+from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models.signals import pre_save, post_save
+
+
+class ArticleQuerySet(models.QuerySet):
+    def search(self, query=None):
+        if query is None or query == "":
+            return self.get_queryset().none()
+
+        lookups = models.Q(title__icontains=query) | models.Q(
+            content__icontains=query)
+        return self.filter(lookups)
+
+
+class ArticleManager(models.Manager):
+    def get_queryset(self) -> QuerySet:
+        return ArticleQuerySet(model=self.model)
+
+    def search(self, query=None):
+        return self.get_queryset().search(query=query)
 
 
 class Article(models.Model):
@@ -29,6 +48,8 @@ class Article(models.Model):
     # adding url getter
     def url(self):
         return f'/articles/{self.slug}'
+
+    objects = ArticleManager()
 
 
 def slugify_instance(instance: Article, save: bool = False):

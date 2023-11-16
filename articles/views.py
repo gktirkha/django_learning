@@ -24,19 +24,11 @@ def article_detail_view(request: HttpRequest, slug):
 
 
 def article_search_view(request: HttpRequest):
-    query = None
-    article_obj = None
     context = {}
+    query = request.GET['q']
+    qs = Article.objects.all().search(query=query)
+    context['article_list'] = qs
 
-    try:
-        query = request.GET['q']
-        article_obj = Article.objects.get(slug=query)
-
-    except:
-        query = None
-        article_obj = None
-
-    context['article_obj'] = article_obj
     return render(request=request, context=context, template_name='articles/search.html')
 
 

@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block base %}
 <h1>Search.html</h1>
-{% if article_obj != None %}
-Article Id = {{article_obj.id}} <br />
-Article Title = {{article_obj.title}} <br />
-Article Content = {{article_obj.content}} <br />
-{% endif %}
+<ul>
+    {%for obj in article_list%}
+    <li><a href="{{obj.link}}">{{obj.title}}</a></li>
+    {% endfor %}
+</ul>
+
+
 {% endblock base %}

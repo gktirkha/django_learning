@@ -1737,3 +1737,71 @@ I have done some changes in article models as follow
     ```html
     <li> <a href="{{x.url}}">{{x.title}}</a> </li>
     ```
+
+# Creating custom query methods using model manager and model QuerySet
+> our aim is to implement a method search in article model so that we can use ```Article.objects.search(query=query)``` to search based on title or content
+
+> in ```articles/models.py```
+1. create custom queryset class, this is the class where you can define what to do on custom query methods
+
+    ```python
+    class ArticleQuerySet(models.QuerySet):
+        def search(self, query=None):
+            if query is None or query == "":
+                return self.get_queryset().none()
+
+            lookups = models.Q(title__icontains=query) | models.Q(
+                content__icontains=query)
+            return self.filter(lookups)
+    ```
+
+1. create ```ArticleManager``` class this class will tell the object from where the ```objects``` should be picked and from where the custom methods should be picked
+
+    ```python
+    class ArticleManager(models.Manager):
+        # telling that we must use ArticleQuerySet class to get query set
+        def get_queryset(self) -> QuerySet:
+            return ArticleQuerySet(model=self.model)
+
+        # telling what to do on search method
+        def search(self, query=None):
+            return self.get_queryset().search(query=query)
+    ```
+
+1. assign ```objects in model class to model manager```
+
+    ```python
+    class Article(models.Model):
+        objects = ArticleManager() # add this line
+    ```
+
+# Using custom query set methods
+> in ```articles/views.py```
+1. replace ```article_search_view``` to use custom queryset methods
+
+    ```python
+    def article_search_view(request: HttpRequest):
+        context = {}
+        query = request.GET['q']
+        qs = Article.objects.all().search(query=query)
+        context['article_list'] = qs
+
+        return render(request=request, context=context, template_name='articles/search.html')
+    ```
+
+> in ```templates/articles/search.html```
+1. edit html file to parse query set using loop
+
+    ```html
+    {% extends "base.html" %}
+    {% block base %}
+    <h1>Search.html</h1>
+    <ul>
+        {%for obj in article_list%}
+        <li><a href="{{obj.link}}">{{obj.title}}</a></li>
+        {% endfor %}
+    </ul>
+
+
+    {% endblock base %}
+    ```

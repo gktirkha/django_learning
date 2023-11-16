@@ -16,6 +16,7 @@
         "kwargs",
         "makemigrations",
         "pycache",
+        "queryset",
         "signup",
         "startapp",
         "startproject",
