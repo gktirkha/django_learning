@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block base %}
 <h1>Details.html</h1>
+Article Author = {{article_obj.user}}
+{% if article_obj.user == request.user %}
+(you)
+{%endif%} <br />
 Article Id = {{article_obj.id}} <br />
 Article Title = {{article_obj.title}} <br />
 Article Content = {{article_obj.content}} <br />

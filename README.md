@@ -1805,3 +1805,31 @@ I have done some changes in article models as follow
 
     {% endblock base %}
     ```
+
+# Add User in Article
+- in ```articles/models.py```
+1. import settings
+
+    ```python
+    from django.conf import settings
+    ```
+
+1. add user field in Article Model using ```ForeignKey```
+    ```python
+    class Article(models.Model):
+        user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.SET_NULL)
+    ```
+    > ```settings.AUTH_USER_MODEL``` is the dey for default django user model
+
+- in ```templates/articles/details.html```
+
+1. add code to access the user object
+
+    ```html
+    Article Author = {{article_obj.user}}
+    <!-- Checking if current logged in user is the user who created the model -->
+    {% if article_obj.user == request.user %}
+    (you)
+    {%endif%} <br />
+    ```
+

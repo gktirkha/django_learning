@@ -1,9 +1,9 @@
-from collections.abc import Iterable
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models.signals import pre_save, post_save
+from django.conf import settings
 
 
 class ArticleQuerySet(models.QuerySet):
@@ -25,6 +25,8 @@ class ArticleManager(models.Manager):
 
 
 class Article(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             blank=True, null=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=120)
     content = models.TextField()
 
