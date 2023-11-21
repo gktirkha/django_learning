@@ -1833,3 +1833,92 @@ I have done some changes in article models as follow
     {%endif%} <br />
     ```
 
+# Removed db form gitignore
+> I have removed db.sqlite3 from gitignore
+- django admin user name ```gtirkha```
+- password ```1234567890```
+
+# Add Recipe model
+1. create a Recipes app
+
+    ```bash
+    python manage.py startapp recipes
+    ```
+
+2. add models in ```recipes/models.py```
+    ```python
+    from django.db import models
+    from django.conf import settings
+
+
+    class Recipe(models.Model):
+        user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE)
+        name = models.CharField(max_length=120)
+        description = models.TextField(null=True, blank=True)
+        directions = models.TextField(null=True, blank=True)
+        timestamp = models.DateTimeField(auto_now_add=True)
+        updated = models.DateTimeField(auto_now=True)
+        active = models.BooleanField(default=True)
+
+
+    class RecipeIngredient(models.Model):
+        recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+        name = models.CharField(max_length=220)
+        description = models.TextField(null=True, blank=True)
+        quantity = models.CharField(max_length=50)
+        unit = models.CharField(max_length=50)
+        directions = models.TextField(null=True, blank=True)
+        timestamp = models.DateTimeField(auto_now_add=True)
+        updated = models.DateTimeField(auto_now=True)
+        active = models.BooleanField(default=True)
+
+    ```
+
+1. register model in ```recipes/admin.py```
+    ```python
+    from django.contrib import admin
+
+    from .models import Recipe, RecipeIngredient
+
+    # inline is a way to nest a model in admin panel
+    # to do this we make an inline class that extends admin.StackedInline or admin.TabularInline
+    class RecipeIngredientInline(admin.StackedInline):
+        model = RecipeIngredient
+        # extras puts the number of blank inline
+        extra = 0
+
+
+    class RecipeAdmin(admin.ModelAdmin):
+        list_display = ['name', 'user']
+        readonly_fields = ['timestamp', 'updated']
+        raw_id_fields = ['user']
+        inlines = [RecipeIngredientInline]
+
+
+    # register the models
+    admin.site.register(Recipe, RecipeAdmin)
+    admin.site.register(RecipeIngredient)
+
+    ```
+
+1. add app in ```django_learning/settings.py```
+    ```python
+    INSTALLED_APPS = [
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'articles',
+        'accounts',
+        'recipes', #<--- add here
+    ]
+    ```
+
+1. make migrations and migrate
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate
+    ```

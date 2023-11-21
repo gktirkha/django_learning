@@ -12,6 +12,7 @@
         "gtirkha",
         "gunicorn",
         "icontains",
+        "inlines",
         "Kolkata",
         "kwargs",
         "makemigrations",
