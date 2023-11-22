@@ -1922,3 +1922,82 @@ I have done some changes in article models as follow
     python manage.py makemigrations
     python manage.py migrate
     ```
+
+# Reverse urls
+instead of using static hard code urls,we are going to use reverse urls to make routing easy and manage urls per model and manage them separately per application
+
+1. create ```articles/urls.py```
+
+    ```python
+    from django.urls import path
+    from .views import article_create_view, article_detail_view, article_search_view
+
+    # put your desired app name here
+    app_name = 'articles'
+    urlpatterns = [
+        path('', article_search_view),
+        # instead of using /articles before, assume /articles will be added automatically (we will add it in main urls.py)
+        # add name for urls
+        path('create/', article_create_view, name='create'),
+        path('<slug:slug>', article_detail_view, name='detail'),
+    ]
+    ```
+
+1. modify ```django_learning/urls.py```
+
+    ```python
+    from django.contrib import admin
+    from django.urls import path, include #<--- add include
+    from .views import home_view
+    from accounts import views as accounts
+
+    urlpatterns = [
+        path('', home_view),
+        path('admin/', admin.site.urls),
+
+        # For Articles
+        # use whatever route you want for articles and include the file that contains your urls (don't add.py at last)
+        # in our case our file is in a folder named articles and the file name is urls.py
+        path('articles/', include('articles.urls')),
+
+        # For accounts
+        path('login/', accounts.login_view),
+        path('logout/', accounts.logout_view),
+        path('signup/', accounts.signup_view),
+
+    ]
+    ```
+
+1. use reverse urls instead of previous urls
+
+    - ```articles/models.py```
+
+        ```python
+        from django.urls import reverse #import reverse to use reverse url
+
+
+        class Article(models.Model):
+            
+            # modify this method to use reverse url
+            # syntax to get url reverse(<app_name:name>, kwargs={your arguments like slug in this case})
+            # app_name and name from step 1 defined in articles/urls.py
+            def url(self):
+                return reverse("articles:detail", kwargs={'slug': self.slug})
+        ```
+    
+    - ```templates/articles/search.html```
+
+        ```html
+        {% extends "base.html" %}
+        {% block base %}
+        <h1>Search.html</h1>
+        <ul>
+            {%for obj in article_list%}
+            <!-- change this to use url from model -->
+            <li><a href="{{obj.url}}">{{obj.title}}</a></li>
+            {% endfor %}
+        </ul>
+
+
+        {% endblock base %}
+        ```

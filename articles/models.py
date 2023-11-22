@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models.signals import pre_save, post_save
 from django.conf import settings
+from django.urls import reverse
 
 
 class ArticleQuerySet(models.QuerySet):
@@ -49,7 +50,7 @@ class Article(models.Model):
 
     # adding url getter
     def url(self):
-        return f'/articles/{self.slug}'
+        return reverse("articles:detail", kwargs={'slug': self.slug})
 
     objects = ArticleManager()
 
