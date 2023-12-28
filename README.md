@@ -1676,47 +1676,47 @@ I have done some changes in article models as follow
     ```
 
 1. edit ```templates/home_view.html``` to use slugs
-```html
-<!-- Content here will be replaced in view  -->
-{% extends "base.html" %}
-{% block base %}
-<h1>Home_View.html</h1>
-<h2>Passed List For Parsing</h2>
-<ul>
-    {% for x in my_list %}
-    <li>{{x}}</li>
-    {% endfor %}
-</ul>
+    ```html
+    <!-- Content here will be replaced in view  -->
+    {% extends "base.html" %}
+    {% block base %}
+    <h1>Home_View.html</h1>
+    <h2>Passed List For Parsing</h2>
+    <ul>
+        {% for x in my_list %}
+        <li>{{x}}</li>
+        {% endfor %}
+    </ul>
 
-<!-- values to be substituted must be enclosed in double curly brackets ("{{variable}}")  -->
-{% if article_obj %}
-<h2>
-    Article 1 Details
-</h2>
-<h3>
-    Title = {{article_obj.title}}<br />
-    Content = {{article_obj.content}}<br />
-    Id = {{article_obj.id}} <br />
-</h3>
+    <!-- values to be substituted must be enclosed in double curly brackets ("{{variable}}")  -->
+    {% if article_obj %}
+    <h2>
+        Article 1 Details
+    </h2>
+    <h3>
+        Title = {{article_obj.title}}<br />
+        Content = {{article_obj.content}}<br />
+        Id = {{article_obj.id}} <br />
+    </h3>
 
-{% endif %}
-
-<h2>All Urls Available</h2>
-{% for x in url_list %}
-    <a href="{{x.url}}"> {{x.name}} </a> <br>
-{%endfor%}
-
-<h2>All Data in Database</h2>
-<ul>
-    {% for x in qs %}
-    {% if x.title %}
-    <!-- Using Slugs instead of id -->
-    <li> <a href="/articles/{{x.slug}}">{{x.title}}</a> </li> 
     {% endif %}
+
+    <h2>All Urls Available</h2>
+    {% for x in url_list %}
+        <a href="{{x.url}}"> {{x.name}} </a> <br>
     {%endfor%}
-</ul>
-{% endblock base %}
-```
+
+    <h2>All Data in Database</h2>
+    <ul>
+        {% for x in qs %}
+        {% if x.title %}
+        <!-- Using Slugs instead of id -->
+        <li> <a href="/articles/{{x.slug}}">{{x.title}}</a> </li> 
+        {% endif %}
+        {%endfor%}
+    </ul>
+    {% endblock base %}
+    ```
 
 # Using Links form model (making link getter in model class)
 1. in ```articles/models.py``` Create a method which will return link to our object 
