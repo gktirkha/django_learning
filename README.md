@@ -257,11 +257,11 @@ we will deploy our django app on ubuntu instance like ec2
     ```
 1. access logs
     ```bash
-    cat /var/log/nginx/error.log
+    cat /var/log/nginx/access.log
     ```
     or 
     ```bash
-    tail /var/log/nginx/error.log
+    tail /var/log/nginx/access.log
     ```
     > tail will give last 10-15 logs, where cat will give all logs, you can also use vim or nano to view logs
 
