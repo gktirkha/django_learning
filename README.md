@@ -58,7 +58,7 @@ if done correctly following will be the directory structure
 # Running Server
 to start debug server run 
 ```bash
-python manage.py reserver
+python manage.py runserver
 ```
 
 > it will give following output 
