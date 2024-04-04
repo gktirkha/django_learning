@@ -268,6 +268,6 @@ we will deploy our django app on ubuntu instance like ec2
 1. if you make changes to project run following to restart server
 
     ```bash
-    sudo systemctl start gunicorn.service
-    sudo systemctl start nginx
+    sudo systemctl restart gunicorn.service
+    sudo systemctl restart nginx
     ```
